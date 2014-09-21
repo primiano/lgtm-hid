@@ -1,1 +1,6 @@
 *.mcw
+*.DS_Store
+*.map
+*.cof
+*.mcs
+Objects/
