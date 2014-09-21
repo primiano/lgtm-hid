@@ -1,6 +1,6 @@
 // Copyright (c) 2014, Primiano Tucci (www.primianotucci.com)
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
 //     * Redistributions of source code must retain the above copyright
@@ -11,7 +11,7 @@
 //     * Neither the name of the <organization> nor the
 //       names of its contributors may be used to endorse or promote products
 //       derived from this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 // IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -28,8 +28,7 @@
 #pragma romdata
 
 /* Device Descriptor */
-ROM USB_DEVICE_DESCRIPTOR device_dsc=
-{
+ROM USB_DEVICE_DESCRIPTOR device_dsc = {
     0x12,                   // Size of this descriptor in bytes
     USB_DESCRIPTOR_DEVICE,  // DEVICE descriptor type
     0x0200,                 // USB Spec Release Number in BCD format
@@ -47,9 +46,9 @@ ROM USB_DEVICE_DESCRIPTOR device_dsc=
 };
 
 /* Configuration 1 Descriptor */
-ROM BYTE configDescriptor1[]={
+ROM BYTE configDescriptor1[] = {
     /* Configuration Descriptor */
-    0x09,//sizeof(USB_CFG_DSC),    // Size of this descriptor in bytes
+    0x09,  // sizeof(USB_CFG_DSC),    // Size of this descriptor in bytes
     USB_DESCRIPTOR_CONFIGURATION,  // CONFIGURATION descriptor type
     DESC_CONFIG_WORD(0x0029),      // Total length of data for this cfg
     1,                             // Number of interfaces in this cfg
@@ -59,15 +58,15 @@ ROM BYTE configDescriptor1[]={
     50,                            // Max power consumption (2X mA)
 
     /* Interface Descriptor */
-    0x09,//sizeof(USB_INTF_DSC),   // Size of this descriptor in bytes
-    USB_DESCRIPTOR_INTERFACE,      // INTERFACE descriptor type
-    0,                             // Interface Number
-    0,                             // Alternate Setting Number
-    2,                             // Number of endpoints in this intf
-    HID_INTF,                      // Class code
-    BOOT_INTF_SUBCLASS,            // Subclass code
-    HID_PROTOCOL_KEYBOARD,         // Protocol code
-    0x02,                          // Interface string index
+    0x09,  // sizeof(USB_INTF_DSC),   // Size of this descriptor in bytes
+    USB_DESCRIPTOR_INTERFACE,  // INTERFACE descriptor type
+    0,                         // Interface Number
+    0,                         // Alternate Setting Number
+    2,                         // Number of endpoints in this intf
+    HID_INTF,                  // Class code
+    BOOT_INTF_SUBCLASS,        // Subclass code
+    HID_PROTOCOL_KEYBOARD,     // Protocol code
+    0x02,                      // Interface string index
 
     /* HID Class-Specific Descriptor */
     0x09,                      // Size of this descriptor in bytes
@@ -77,89 +76,92 @@ ROM BYTE configDescriptor1[]={
     HID_NUM_OF_DSC,            // Number of class descriptors, see usbcfg.h
     DSC_RPT,                   // Report descriptor type
     DESC_CONFIG_WORD(63),      // Size of the report descriptor
-    
-    /* Endpoint Descriptor */
-    0x07,/*sizeof(USB_EP_DSC)*/
-    USB_DESCRIPTOR_ENDPOINT,    //Endpoint Descriptor
-    HID_EP | _EP_IN,            //EndpointAddress
-    _INTERRUPT,                 //Attributes
-    DESC_CONFIG_WORD(8),        //size
-    0x01,                       //Interval
 
     /* Endpoint Descriptor */
-    0x07,/*sizeof(USB_EP_DSC)*/
-    USB_DESCRIPTOR_ENDPOINT,    //Endpoint Descriptor
-    _INTERRUPT,                 //Attributes
-    HID_EP | _EP_OUT,           //EndpointAddress
-    DESC_CONFIG_WORD(8),        //size
-    0x01                        //Interval
+    0x07, /*sizeof(USB_EP_DSC)*/
+    USB_DESCRIPTOR_ENDPOINT,  // Endpoint Descriptor
+    HID_EP | _EP_IN,  // EndpointAddress
+    _INTERRUPT,  // Attributes
+    DESC_CONFIG_WORD(8),  // size
+    0x01,  // Interval
 
+    /* Endpoint Descriptor */
+    0x07, /*sizeof(USB_EP_DSC)*/
+    USB_DESCRIPTOR_ENDPOINT,  // Endpoint Descriptor
+    _INTERRUPT,  // Attributes
+    HID_EP | _EP_OUT,  // EndpointAddress
+    DESC_CONFIG_WORD(8),  // size
+    0x01  // Interval
 };
 
+// Language code string descriptor
+ROM struct {
+  BYTE bLength;
+  BYTE bDscType;
+  WORD string[1];
+} sd000 = {sizeof(sd000), USB_DESCRIPTOR_STRING, {0x0409}};
 
-//Language code string descriptor
-ROM struct{BYTE bLength;BYTE bDscType;WORD string[1];}sd000={
-sizeof(sd000),USB_DESCRIPTOR_STRING,{0x0409
-}};
+// Manufacturer string descriptor
+ROM struct {
+  BYTE bLength;
+  BYTE bDscType;
+  WORD string[18];
+} sd001 = {sizeof(sd001),
+           USB_DESCRIPTOR_STRING,
+           {'p', 'r', 'i', 'm', 'i', 'a', 'n', 'o', 't', 'u', 'c', 'c', 'i',
+            '.', 'c', 'o', 'm'}};
 
-//Manufacturer string descriptor
-ROM struct{BYTE bLength;BYTE bDscType;WORD string[18];}sd001={
-sizeof(sd001),USB_DESCRIPTOR_STRING,
-{'p','r','i','m','i','a','n','o','t','u','c','c','i','.','c','o','m'
-}};
+// Product string descriptor
+ROM struct {
+  BYTE bLength;
+  BYTE bDscType;
+  WORD string[9];
+} sd002 = {sizeof(sd002),
+           USB_DESCRIPTOR_STRING,
+           {'L', 'G', 'T', 'M', '-', 'H', 'I', 'D'}};
 
-//Product string descriptor
-ROM struct{BYTE bLength;BYTE bDscType;WORD string[9];}sd002={
-sizeof(sd002),USB_DESCRIPTOR_STRING,
-{'L','G','T','M','-','H','I','D'
-}};
-
-//Class specific descriptor - HID Keyboard
-ROM struct{BYTE report[HID_RPT01_SIZE];}hid_rpt01={
-{   0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
-    0x09, 0x06,                    // USAGE (Keyboard)
-    0xa1, 0x01,                    // COLLECTION (Application)
-    0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
-    0x19, 0xe0,                    //   USAGE_MINIMUM (Keyboard LeftControl)
-    0x29, 0xe7,                    //   USAGE_MAXIMUM (Keyboard Right GUI)
-    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-    0x25, 0x01,                    //   LOGICAL_MAXIMUM (1)
-    0x75, 0x01,                    //   REPORT_SIZE (1)
-    0x95, 0x08,                    //   REPORT_COUNT (8)
-    0x81, 0x02,                    //   INPUT (Data,Var,Abs)
-    0x95, 0x01,                    //   REPORT_COUNT (1)
-    0x75, 0x08,                    //   REPORT_SIZE (8)
-    0x81, 0x03,                    //   INPUT (Cnst,Var,Abs)
-    0x95, 0x05,                    //   REPORT_COUNT (5)
-    0x75, 0x01,                    //   REPORT_SIZE (1)
-    0x05, 0x08,                    //   USAGE_PAGE (LEDs)
-    0x19, 0x01,                    //   USAGE_MINIMUM (Num Lock)
-    0x29, 0x05,                    //   USAGE_MAXIMUM (Kana)
-    0x91, 0x02,                    //   OUTPUT (Data,Var,Abs)
-    0x95, 0x01,                    //   REPORT_COUNT (1)
-    0x75, 0x03,                    //   REPORT_SIZE (3)
-    0x91, 0x03,                    //   OUTPUT (Cnst,Var,Abs)
-    0x95, 0x06,                    //   REPORT_COUNT (6)
-    0x75, 0x08,                    //   REPORT_SIZE (8)
-    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-    0x25, 0x65,                    //   LOGICAL_MAXIMUM (101)
-    0x05, 0x07,                    //   USAGE_PAGE (Keyboard)
-    0x19, 0x00,                    //   USAGE_MINIMUM (Reserved (no event indicated))
-    0x29, 0x65,                    //   USAGE_MAXIMUM (Keyboard Application)
-    0x81, 0x00,                    //   INPUT (Data,Ary,Abs)
-    0xc0}                          // End Collection
+// Class specific descriptor - HID Keyboard
+ROM struct {
+  BYTE report[HID_RPT01_SIZE];
+} hid_rpt01 = {
+      {0x05, 0x01,  // USAGE_PAGE (Generic Desktop)
+       0x09, 0x06,  // USAGE (Keyboard)
+       0xa1, 0x01,  // COLLECTION (Application)
+       0x05, 0x07,  //   USAGE_PAGE (Keyboard)
+       0x19, 0xe0,  //   USAGE_MINIMUM (Keyboard LeftControl)
+       0x29, 0xe7,  //   USAGE_MAXIMUM (Keyboard Right GUI)
+       0x15, 0x00,  //   LOGICAL_MINIMUM (0)
+       0x25, 0x01,  //   LOGICAL_MAXIMUM (1)
+       0x75, 0x01,  //   REPORT_SIZE (1)
+       0x95, 0x08,  //   REPORT_COUNT (8)
+       0x81, 0x02,  //   INPUT (Data,Var,Abs)
+       0x95, 0x01,  //   REPORT_COUNT (1)
+       0x75, 0x08,  //   REPORT_SIZE (8)
+       0x81, 0x03,  //   INPUT (Cnst,Var,Abs)
+       0x95, 0x05,  //   REPORT_COUNT (5)
+       0x75, 0x01,  //   REPORT_SIZE (1)
+       0x05, 0x08,  //   USAGE_PAGE (LEDs)
+       0x19, 0x01,  //   USAGE_MINIMUM (Num Lock)
+       0x29, 0x05,  //   USAGE_MAXIMUM (Kana)
+       0x91, 0x02,  //   OUTPUT (Data,Var,Abs)
+       0x95, 0x01,  //   REPORT_COUNT (1)
+       0x75, 0x03,  //   REPORT_SIZE (3)
+       0x91, 0x03,  //   OUTPUT (Cnst,Var,Abs)
+       0x95, 0x06,  //   REPORT_COUNT (6)
+       0x75, 0x08,  //   REPORT_SIZE (8)
+       0x15, 0x00,  //   LOGICAL_MINIMUM (0)
+       0x25, 0x65,  //   LOGICAL_MAXIMUM (101)
+       0x05, 0x07,  //   USAGE_PAGE (Keyboard)
+       0x19, 0x00,  //   USAGE_MINIMUM (Reserved (no event indicated))
+       0x29, 0x65,  //   USAGE_MAXIMUM (Keyboard Application)
+       0x81, 0x00,  //   INPUT (Data,Ary,Abs)
+       0xc0}        // End Collection
 };
 
-//Array of configuration descriptors
-ROM BYTE *ROM USB_CD_Ptr[]=
-{
-    (ROM BYTE *ROM)&configDescriptor1
-};
+// Array of configuration descriptors
+ROM BYTE* ROM USB_CD_Ptr[] = {(ROM BYTE * ROM) & configDescriptor1};
 
-//Array of string descriptors
-ROM BYTE *ROM USB_SD_Ptr[]=
-{
-    (ROM BYTE *ROM)&sd000,
-    (ROM BYTE *ROM)&sd001,
-    (ROM BYTE *ROM)&sd002
-};
+// Array of string descriptors
+ROM BYTE* ROM USB_SD_Ptr[] = {(ROM BYTE * ROM) & sd000,
+                              (ROM BYTE * ROM) & sd001,
+                              (ROM BYTE * ROM) & sd002};
