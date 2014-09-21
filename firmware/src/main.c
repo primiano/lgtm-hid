@@ -37,7 +37,7 @@
 #pragma config FOSC = HSPLL_HS
 #pragma config FCMEN = OFF
 #pragma config IESO = OFF
-#pragma config PWRT = ON
+#pragma config PWRT = OFF
 #pragma config BOR = ON
 #pragma config BORV = 3
 #pragma config VREGEN = ON
@@ -79,24 +79,13 @@ void Keyboard(void);
 void USBHIDCBSetReportComplete(void);
 
 void main(void) {
-  long i = 0;
-
-  memset(g_tx_queue, 0, sizeof(g_tx_queue));
-  EEADR = 0;
-  EECON1bits.EEPGD = 0;
-  EECON1bits.CFGS = 0;
-  EECON1bits.RD = 1;
-  g_lgtm_strings_idx = EEDATA;
-  if (g_lgtm_strings_idx >= NUM_LGTM_STRINGS)
-    g_lgtm_strings_idx = 0;
-  g_lgtm_ascii_ptr = LGTM_STRINGS[g_lgtm_strings_idx];
   InitializeSystem();
 
   // If the switch is pressed on boot, enter system config mode.
   g_config_mode = (sw == 0);
 
   while (1) {
-    USBDeviceTasks();   
+    USBDeviceTasks();
     ProcessIO();
   }
 }
@@ -110,6 +99,17 @@ void InitializeSystem(void) {
   g_blink_status_valid = TRUE;
   g_usb_handle_in = 0;
   g_usb_handle_out = 0;
+
+  // Reset TX queue and read config from the EEPROM.
+  memset(g_tx_queue, 0, sizeof(g_tx_queue));
+  EEADR = 0;
+  EECON1bits.EEPGD = 0;
+  EECON1bits.CFGS = 0;
+  EECON1bits.RD = 1;
+  g_lgtm_strings_idx = EEDATA;
+  if (g_lgtm_strings_idx >= NUM_LGTM_STRINGS)
+    g_lgtm_strings_idx = 0;
+  g_lgtm_ascii_ptr = LGTM_STRINGS[g_lgtm_strings_idx];
 
   USBDeviceInit();  // usb_device.c.  Initializes USB module SFRs and firmware
                     // variables to known states.
@@ -138,7 +138,6 @@ void ProcessIO(void) {
 
   // Call the function that behaves like a keyboard
   Keyboard();
-
 }
 
 void Keyboard(void) {
@@ -192,22 +191,8 @@ void Keyboard(void) {
   if (!HIDRxHandleBusy(g_usb_handle_out)) {
     // Do something useful with the data now.  Data is in the OutBuffer[0].
     // Num Lock LED state is in Bit0.
-    if (hid_report_out[0] & 0x01)  // Make LED1 and LED2 match Num Lock state.
-    {
-      mLED_1_On();
-      mLED_2_On();
-    } else {
-      mLED_1_Off();
-      mLED_2_Off();
-    }
-
-    // Stop toggling the LEDs, so you can temporily see the Num lock LED state
-    // instead.
-    // Once the g_usb_led_timer reaches 0, the LEDs will go back to showing USB
-    // state instead.
-    g_blink_status_valid = FALSE;
-    g_usb_led_timer = 140000;
-
+    // if (hid_report_out[0] & 0x01)  // Make LED1 and LED2 match Num Lock
+    // state.
     g_usb_handle_out = HIDRxPacket(HID_EP, (BYTE*)&hid_report_out, 1);
   }
 
@@ -293,10 +278,9 @@ void BlinkUSBStatus(void) {
   }
 }
 
-// ******************************************************************************************************
-// ************** USB Callback Functions
-// ****************************************************************
-// ******************************************************************************************************
+// ****************************************************************************
+// ************** USB Callback Functions **************************************
+// ****************************************************************************
 void USBCBSuspend(void) {
   // Example power saving code.  Insert appropriate code here for the desired
   // application behavior.  If the microcontroller will be put to sleep, a
@@ -406,6 +390,8 @@ BOOL USER_USB_CALLBACK_EVENT_HANDLER(int event, void* pdata, WORD size) {
       USBCBCheckOtherReq();
       break;
     case EVENT_BUS_ERROR:
+      mLED_1_On();
+      mLED_2_Off();
       break;
     case EVENT_TRANSFER_TERMINATED:
       // Add application specific callback task or callback function here if

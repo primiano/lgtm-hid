@@ -48,17 +48,17 @@ ROM USB_DEVICE_DESCRIPTOR device_dsc = {
 /* Configuration 1 Descriptor */
 ROM BYTE configDescriptor1[] = {
     /* Configuration Descriptor */
-    0x09,  // sizeof(USB_CFG_DSC),    // Size of this descriptor in bytes
+    0x09,                          // Size of this descriptor in bytes
     USB_DESCRIPTOR_CONFIGURATION,  // CONFIGURATION descriptor type
     DESC_CONFIG_WORD(0x0029),      // Total length of data for this cfg
     1,                             // Number of interfaces in this cfg
     1,                             // Index value of this configuration
     0,                             // Configuration string index
-    _DEFAULT | _SELF | _RWU,       // Attributes, see usb_device.h
+    _DEFAULT | _SELF,              // Attributes, see usb_device.h
     50,                            // Max power consumption (2X mA)
 
     /* Interface Descriptor */
-    0x09,  // sizeof(USB_INTF_DSC),   // Size of this descriptor in bytes
+    0x09,                      // Size of this descriptor in bytes
     USB_DESCRIPTOR_INTERFACE,  // INTERFACE descriptor type
     0,                         // Interface Number
     0,                         // Alternate Setting Number
@@ -78,20 +78,20 @@ ROM BYTE configDescriptor1[] = {
     DESC_CONFIG_WORD(63),      // Size of the report descriptor
 
     /* Endpoint Descriptor */
-    0x07, /*sizeof(USB_EP_DSC)*/
+    0x07,                     // sizeof(USB_EP_DSC)
     USB_DESCRIPTOR_ENDPOINT,  // Endpoint Descriptor
-    HID_EP | _EP_IN,  // EndpointAddress
-    _INTERRUPT,  // Attributes
-    DESC_CONFIG_WORD(8),  // size
-    0x01,  // Interval
+    HID_EP | _EP_IN,          // EndpointAddress
+    _INTERRUPT,               // Attributes
+    DESC_CONFIG_WORD(8),      // size
+    0x01,                     // Interval
 
     /* Endpoint Descriptor */
-    0x07, /*sizeof(USB_EP_DSC)*/
+    0x07,                     // sizeof(USB_EP_DSC)
     USB_DESCRIPTOR_ENDPOINT,  // Endpoint Descriptor
-    _INTERRUPT,  // Attributes
-    HID_EP | _EP_OUT,  // EndpointAddress
-    DESC_CONFIG_WORD(8),  // size
-    0x01  // Interval
+    HID_EP | _EP_OUT,         // EndpointAddress
+    _INTERRUPT,               // Attributes
+    DESC_CONFIG_WORD(8),      // size
+    0x01                      // Interval
 };
 
 // Language code string descriptor
@@ -105,17 +105,17 @@ ROM struct {
 ROM struct {
   BYTE bLength;
   BYTE bDscType;
-  WORD string[18];
-} sd001 = {sizeof(sd001),
-           USB_DESCRIPTOR_STRING,
-           {'p', 'r', 'i', 'm', 'i', 'a', 'n', 'o', 't', 'u', 'c', 'c', 'i',
-            '.', 'c', 'o', 'm'}};
+  WORD string[14];
+} sd001 = {
+      sizeof(sd001),
+      USB_DESCRIPTOR_STRING,
+      {'P', 'r', 'i', 'm', 'i', 'a', 'n', 'o', ' ', 'T', 'u', 'c', 'c', 'i'}};
 
 // Product string descriptor
 ROM struct {
   BYTE bLength;
   BYTE bDscType;
-  WORD string[9];
+  WORD string[8];
 } sd002 = {sizeof(sd002),
            USB_DESCRIPTOR_STRING,
            {'L', 'G', 'T', 'M', '-', 'H', 'I', 'D'}};
@@ -162,6 +162,7 @@ ROM struct {
 ROM BYTE* ROM USB_CD_Ptr[] = {(ROM BYTE * ROM) & configDescriptor1};
 
 // Array of string descriptors
-ROM BYTE* ROM USB_SD_Ptr[] = {(ROM BYTE * ROM) & sd000,
-                              (ROM BYTE * ROM) & sd001,
-                              (ROM BYTE * ROM) & sd002};
+ROM BYTE* ROM USB_SD_Ptr[USB_NUM_STRING_DESCRIPTORS] = {
+    (ROM BYTE * ROM) & sd000,
+    (ROM BYTE * ROM) & sd001,
+    (ROM BYTE * ROM) & sd002};
