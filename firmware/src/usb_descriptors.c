@@ -55,7 +55,7 @@ ROM BYTE configDescriptor1[] = {
     1,                             // Index value of this configuration
     0,                             // Configuration string index
     _DEFAULT | _SELF,              // Attributes, see usb_device.h
-    50,                            // Max power consumption (2X mA)
+    25,                            // Max power consumption (2X mA)
 
     /* Interface Descriptor */
     0x09,                      // Size of this descriptor in bytes
