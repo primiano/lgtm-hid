@@ -284,17 +284,13 @@ void BlinkUSBStatus(void) {
         mLED_2_Off();
       }
     } else if (USBDeviceState == CONFIGURED_STATE) {
-      if (led_count == 0) {
-        mLED_1_Toggle();
-        if (mGetLED_1()) {
-          mLED_2_Off();
-        } else {
-          mLED_2_On();
-        }
+      if (led_count < 100) {
+        mLED_Both_On();
+      } else {
+        mLED_Both_Off();
       }
     }
   }
-
 }
 
 // ******************************************************************************************************
